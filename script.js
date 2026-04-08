@@ -1,3 +1,4 @@
+document.addEventListener('DOMContentLoaded', () => {
 const form = document.getElementById('predictionForm');
 const resultDiv = document.getElementById('result');
 const loadingDiv = document.getElementById('loading');
@@ -22,7 +23,7 @@ genderSelect.addEventListener('change', (e) => {
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+    console.log('Form submitted!'); // Debug log
     // Get form data
     const formData = {
         Pregnancies: parseInt(document.getElementById('pregnancies').value),
@@ -31,33 +32,36 @@ form.addEventListener('submit', async (e) => {
         BMI: parseFloat(document.getElementById('bmi').value),
         Age: parseInt(document.getElementById('age').value)
     };
-    
+    console.log('Form data:', formData); // Debug log
     // Show loading
     resultDiv.classList.add('hidden');
     loadingDiv.classList.remove('hidden');
-    
+
     try {
         // Make API call
-        const response = await fetch('http://18.204.225.74/:8000/predict', {
+        console.log('Making API call...'); // Debug log
+        const response = await fetch('http://3.239.11.77:8000/predict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData)
         });
-        
+
+        console.log('Response status:', response.status); // Debug log
+
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        
+
         const data = await response.json();
-        
+        console.log('Response data:', data);
         // Hide loading
         loadingDiv.classList.add('hidden');
-        
+
         // Show result
         resultDiv.classList.remove('hidden');
-        
+
         if (data.diabetic) {
             resultDiv.classList.remove('negative');
             resultDiv.classList.add('positive');
@@ -71,8 +75,9 @@ form.addEventListener('submit', async (e) => {
             resultTitle.textContent = 'Low Risk';
             resultMessage.textContent = 'Based on the provided health metrics, the model predicts a lower risk of diabetes. Continue maintaining a healthy lifestyle and regular check-ups.';
         }
-        
+        console.log('Result displayed!'); // Debug log
     } catch (error) {
+        console.error('Error:', error);
         loadingDiv.classList.add('hidden');
         resultDiv.classList.remove('hidden', 'positive', 'negative');
         resultDiv.style.background = '#fff3cd';
@@ -80,6 +85,7 @@ form.addEventListener('submit', async (e) => {
         resultIcon.textContent = '❌';
         resultTitle.textContent = 'Error';
         resultTitle.style.color = '#856404';
-        resultMessage.textContent = 'Failed to connect to the prediction service. Please make sure the API server is running on http://127.0.0.1:8000';
+        resultMessage.textContent = 'Failed to connect to the prediction service. Please make sure the API server is running on INSTANCE_PUBLIC_IPV4_ADDRES. ERROR: '+error.message;
     }
+    });
 });
